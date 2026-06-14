@@ -11,6 +11,7 @@ final class PlayerStore: ObservableObject {
     @Published var userHidden = false   // 菜单栏「隐藏歌词岛」手动开关
     @Published private(set) var fallbackLyrics: [String: Lyric] = [:]   // id → 30488 兜底歌词
     @Published private(set) var algerInstalled = true   // 本机是否装了 AlgerMusic（false → 引导安装）
+    @Published private(set) var likedThisSession: Set<String> = []   // 本会话点过「喜欢」的歌 id（乐观显示红心；API 不暴露真实红心态）
     private var fetchingLyric: Set<String> = []
     private var debugLaunchAttempted = false   // 本会话是否已尝试过带调试参数(重)启（一次性，避免循环重启）
 
@@ -223,6 +224,16 @@ final class PlayerStore: ObservableObject {
     // 切歌：放弃旧的乐观播放态，否则新歌会被旧暂停/播放目标污染。
     func next() { pendingPlay = nil; Task { await client.control(.next) } }
     func prev() { pendingPlay = nil; Task { await client.control(.prev) } }
+
+    /// 当前歌是否被「喜欢」（乐观：仅反映本会话点击；AlgerMusic /api/status 不暴露真实红心态）。
+    var currentLiked: Bool { guard let id = activeSong?.id.value else { return false }; return likedThisSession.contains(id) }
+
+    /// 喜欢/取消喜欢当前歌（等同网易云红心 = Apple Music 式喜欢）。POST /api/toggle-favorite + 乐观切换红心显示。
+    func toggleFavorite() {
+        guard let id = activeSong?.id.value, !id.isEmpty else { return }
+        if likedThisSession.contains(id) { likedThisSession.remove(id) } else { likedThisSession.insert(id) }
+        Task { await client.control(.toggleFavorite) }
+    }
 
     /// 拖动进度：先本地立即重锚（UI 即时反映），再发 CDP seek 命令到 AlgerMusic。
     func seek(toMs ms: Int) {

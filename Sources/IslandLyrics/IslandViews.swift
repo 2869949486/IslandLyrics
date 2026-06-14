@@ -310,13 +310,20 @@ struct CachedCover: View {
             if let img { Image(nsImage: img).resizable().scaledToFill() }
             else { Color.clear }
         }
-        .onAppear {
-            guard CoverCache.shared.image(for: url) == nil else { return }
-            URLSession.shared.dataTask(with: url) { data, _, _ in
-                guard let data, let im = NSImage(data: data) else { return }
-                CoverCache.shared.store(im, for: url)
-                DispatchQueue.main.async { loaded = im }
-            }.resume()
+        // .task(id:) 在视图出现 + url 变化(换歌)时都会跑；带重试，网络/代理偶发失败不再永久卡成色块。
+        .task(id: url) {
+            if let cached = CoverCache.shared.image(for: url) { loaded = cached; return }
+            loaded = nil
+            for attempt in 0..<4 {
+                if Task.isCancelled { return }
+                if let (data, _) = try? await URLSession.shared.data(from: url),
+                   let im = NSImage(data: data), im.size.width > 0 {
+                    CoverCache.shared.store(im, for: url)
+                    if !Task.isCancelled { loaded = im }
+                    return
+                }
+                try? await Task.sleep(nanoseconds: UInt64(attempt + 1) * 500_000_000)   // 0.5/1.0/1.5s 退避后重试
+            }
         }
     }
 }

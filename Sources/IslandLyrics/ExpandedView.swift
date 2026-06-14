@@ -168,7 +168,9 @@ private struct ControlsRow: View {
     let playing: Bool
 
     var body: some View {
-        HStack(spacing: 22) {
+        HStack(spacing: 18) {
+            ControlButton(symbol: store.currentLiked ? "heart.fill" : "heart", size: 15,
+                          color: store.currentLiked ? .pink : .white) { store.toggleFavorite() }
             ControlButton(symbol: "backward.fill", size: 15) { store.prev() }
             ControlButton(symbol: playing ? "pause.fill" : "play.fill", size: 20) { store.togglePlay() }
             ControlButton(symbol: "forward.fill", size: 15) { store.next() }
@@ -181,6 +183,7 @@ private struct ControlsRow: View {
 private struct ControlButton: View {
     let symbol: String
     let size: CGFloat
+    var color: Color = .white
     let action: () -> Void
     @State private var hover = false
 
@@ -188,7 +191,7 @@ private struct ControlButton: View {
         Button(action: action) {
             Image(systemName: symbol)
                 .font(.system(size: size, weight: .medium))
-                .foregroundColor(.white)
+                .foregroundColor(color)
                 .frame(width: size + 20, height: size + 20)
                 .background(Circle().fill(Color.white.opacity(hover ? 0.16 : 0)))
                 .scaleEffect(hover ? 1.14 : 1.0)

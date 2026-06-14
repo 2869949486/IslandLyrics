@@ -66,6 +66,9 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         addItem(menu, store.isPlaying ? "暂停" : "播放",
                 symbol: store.isPlaying ? "pause" : "play", action: #selector(togglePlay), enabled: canControl)
         addItem(menu, "下一首", symbol: "forward.end", action: #selector(next), enabled: canControl)
+        // 喜欢（等同网易云红心）：点击切换当前歌的喜欢状态
+        addItem(menu, store.currentLiked ? "取消喜欢" : "喜欢当前歌曲",
+                symbol: store.currentLiked ? "heart.fill" : "heart", action: #selector(toggleFavorite), enabled: canControl)
         menu.addItem(.separator())
 
         // AlgerMusic 集成：未装→引导安装；已装→可一键带调试参数重启（精准进度没生效时用）。
@@ -104,6 +107,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     @objc private func prev() { store.prev() }
     @objc private func togglePlay() { store.togglePlay() }
     @objc private func next() { store.next() }
+    @objc private func toggleFavorite() { store.toggleFavorite() }
     @objc private func installAlger() { store.openInstallPage() }
     @objc private func relaunchAlger() { store.relaunchAlgerForDebug() }
     @objc private func toggleHidden() { store.userHidden.toggle() }
