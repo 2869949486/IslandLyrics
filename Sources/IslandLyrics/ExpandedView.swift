@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NotchLyricsCore
+import IslandLyricsCore
 
 /// 展开态内容（嵌在灵动岛延展出的形状里，非独立窗口）：
 /// 左 大封面+歌名歌手+进度条(可拖动 seek)+上一首/播放暂停/下一首；右 可滚动整页歌词。

@@ -1,6 +1,6 @@
 import Foundation
 import AppKit
-import NotchLyricsCore
+import IslandLyricsCore
 
 /// 协调器：轮询 /api/status + CDP seek 喂给 PositionEngine，推导待机状态，发布给 SwiftUI。
 /// 视图每帧调 `currentPositionMs()` 取插值位置驱动逐字高亮（位置精度由引擎负责）。

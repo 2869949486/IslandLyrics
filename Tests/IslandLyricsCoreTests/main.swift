@@ -1,5 +1,5 @@
 import Foundation
-import NotchLyricsCore
+import IslandLyricsCore
 
 // 极简断言 runner（CLT 无 XCTest）。所有 check 累计失败，末尾汇总并以非零码退出。
 var failures = 0

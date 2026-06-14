@@ -1,6 +1,6 @@
 # AlgerMusic 集成技术说明
 
-> NotchLyrics 如何从本机 AlgerMusicPlayer 取数据。基于 AlgerMusic 5.1.0（bundle id `com.alger.music`）实测。
+> IslandLyrics 如何从本机 AlgerMusicPlayer 取数据。基于 AlgerMusic 5.1.0（bundle id `com.alger.music`）实测。
 > 端口与是否需手动开启依赖 AlgerMusic 版本，启动时探测、不硬编码。
 
 ## 三个本地口
@@ -47,7 +47,7 @@ lyric = {
 
 `/api/status` **不直接给 position**，需要两条路：
 
-1. **CDP 读 Howler（首选，真实位置）**：AlgerMusic 带 `--remote-debugging-port=9222 --remote-allow-origins='*'` 启动后（NotchLyrics 会代启），经 `GET /json/list` 取 `type==='page'` target 的 `webSocketDebuggerUrl`，WS 连上 `Runtime.evaluate` 读 `window.Howler._howls` 里 `playing()===true` 实例的 `seek()`。seek/快退/暂停**即时反映、零延迟**。每次采样短连重连最稳。
+1. **CDP 读 Howler（首选，真实位置）**：AlgerMusic 带 `--remote-debugging-port=9222 --remote-allow-origins='*'` 启动后（IslandLyrics 会代启），经 `GET /json/list` 取 `type==='page'` target 的 `webSocketDebuggerUrl`，WS 连上 `Runtime.evaluate` 读 `window.Howler._howls` 里 `playing()===true` 实例的 `seek()`。seek/快退/暂停**即时反映、零延迟**。每次采样短连重连最稳。
 2. **createdAt 插值（兜底）**：CDP 不可用时 `position ≈ now - createdAt - 累计暂停墙钟`。正常听够用；**纯插值下手动 seek 会错**（createdAt/LS progress 都感知不到 seek）——这正是要 CDP 的原因。
 
 > 播放器是 **Howler.js**，不是 `<audio>` 元素；多 `_howls` 实例（预加载下一首）用 `playing()===true` 选当前那个；暂停态 seek 按 `duration()≈dt` 匹配实例。

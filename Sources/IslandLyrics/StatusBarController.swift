@@ -1,5 +1,5 @@
 import AppKit
-import NotchLyricsCore
+import IslandLyricsCore
 
 /// 菜单栏状态项（中文菜单）。当前为可用子集：当前歌曲(只读)/上一首/播放暂停/下一首/显示隐藏/退出。
 /// 其余项（打开主界面、展开收起、重载歌词、歌词偏移、开机启动）随对应功能在 phase4 补全。

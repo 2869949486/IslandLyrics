@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NotchLyricsCore
+import IslandLyricsCore
 
 extension Color {
     init(_ c: RGBComponents) { self.init(red: c.r, green: c.g, blue: c.b) }

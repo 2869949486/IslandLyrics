@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NotchLyricsCore
+import IslandLyricsCore
 
 /// 统一灵动岛：收起态是贴刘海的薄条；悬停/点击时**同一形状直接向下延展**成详情面板
 /// （非另开一个胶囊）。隐藏=透明；引导/就绪=最小条；放歌收起=薄条；放歌展开=延展面板。
