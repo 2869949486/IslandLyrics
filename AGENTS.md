@@ -14,13 +14,13 @@ swift run IslandLyricsCoreTests # 跑单测（无 XCTest 的断言式 runner）
 ## 源码结构
 
 - `Sources/IslandLyricsCore/` — 纯逻辑 + 网络层（无 SwiftUI），可单测：PositionEngine(插值)、CDPPositionReader、AlgerMusicClient、NeteaseLyricParser、LyricIndex、PortDiscovery、ProcessDetector、Models、IslandState、ColorComponents。
-- `Sources/IslandLyrics/` — AppKit/SwiftUI：IslandView(收起/展开状态机)、ExpandedView(seek/控制)、NotchWindow(覆盖窗)、NotchShape、PlayerStore(协调器)、StatusBarController、Settings*。
+- `Sources/IslandLyrics/` — AppKit/SwiftUI：IslandView(收起/展开状态机)、ExpandedView(seek/控制)、IslandWindow(覆盖窗)、IslandShape、PlayerStore(协调器)、StatusBarController、Settings*。
 - `Tests/IslandLyricsCoreTests/` — 断言式测试 runner。
 - 接口事实见 [docs/INTEGRATION.md](docs/INTEGRATION.md)。
 
 ## 铁律
 
-- 收起态必须是「从刘海自然长出」的 NotchShape（顶贴边+肩部凹角+底圆角），不是普通圆角浮窗。
+- 收起态必须是「从刘海自然长出」的 IslandShape（顶贴边+肩部凹角+底圆角），不是普通圆角浮窗。
 - 摄像禁区任何状态不放内容；收起态歌词与频谱分开排布。
 - 非激活面板（`NSPanel(.nonactivatingPanel)`）里**自定义鼠标光标(NSCursor)无法生效**，别再加。
 - 不 fork AlgerMusic，只调它 localhost 的 HTTP 接口；不用 Rust 语言工具链。

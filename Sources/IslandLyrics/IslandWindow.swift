@@ -3,7 +3,7 @@ import SwiftUI
 
 /// 覆盖窗：贴顶、置于菜单栏之上、全屏可见、透明无阴影。窗口高度按展开态预留，
 /// 收起态时下方透明，命中区域交给 IslandContainerView 控制（点击穿透）。
-final class NotchPanel: NSPanel {
+final class IslandPanel: NSPanel {
     init(contentRect: NSRect) {
         super.init(
             contentRect: contentRect,
@@ -70,7 +70,7 @@ final class FirstMouseHostingView<V: View>: NSHostingView<V> {
     }
 }
 
-final class NotchWindowController: NSWindowController {
+final class IslandWindowController: NSWindowController {
     init(screen: NSScreen, store: PlayerStore, settings: SettingsStore, startExpanded: Bool = false,
          menuProvider: (() -> NSMenu?)? = nil) {
         let geometry = IslandGeometry(screen: screen)
@@ -114,7 +114,7 @@ final class NotchWindowController: NSWindowController {
         host.autoresizingMask = [.width, .height]
         container.addSubview(host)
 
-        let panel = NotchPanel(contentRect: rect)
+        let panel = IslandPanel(contentRect: rect)
         panel.contentView = container
 
         super.init(window: panel)

@@ -2,7 +2,7 @@ import AppKit
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    private var windowController: NotchWindowController?
+    private var windowController: IslandWindowController?
     private var statusBar: StatusBarController?
     private var settingsWC: SettingsWindowController?
     private let store = PlayerStore()
@@ -30,7 +30,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         windowController = nil
         // MVP：仅内建刘海屏（无内建屏时回退主屏）
         guard let screen = NSScreen.builtIn ?? NSScreen.main else { return }
-        windowController = NotchWindowController(
+        windowController = IslandWindowController(
             screen: screen, store: store, settings: settings,
             startExpanded: CommandLine.arguments.contains("--show-expanded"),
             menuProvider: { [weak self] in self?.statusBar?.makeMenu() }   // 右键刘海条弹同一套菜单

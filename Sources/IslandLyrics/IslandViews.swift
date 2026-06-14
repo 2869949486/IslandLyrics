@@ -36,7 +36,7 @@ struct IslandView: View {
         let isExpanded = expanded && active
         let h: CGFloat = (state == .hidden) ? 0 : (isExpanded ? expandedHeight : geometry.islandHeight)
 
-        let shape = NotchShape(topRadius: geometry.topRadius, bottomRadius: isExpanded ? 24 : geometry.bottomRadius)
+        let shape = IslandShape(topRadius: geometry.topRadius, bottomRadius: isExpanded ? 24 : geometry.bottomRadius)
         return VStack(spacing: 0) {
             ZStack(alignment: .top) {
                 if state != .hidden {

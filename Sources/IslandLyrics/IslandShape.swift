@@ -2,7 +2,7 @@ import SwiftUI
 
 /// 刘海延展形态：顶边全宽贴屏幕、左右肩部凹角过渡、底部凸圆角。
 /// 凹角 = 二次贝塞尔控制点放在顶边上；凸角 = 控制点放在底角上。
-struct NotchShape: Shape {
+struct IslandShape: Shape {
     var topRadius: CGFloat
     var bottomRadius: CGFloat
 
