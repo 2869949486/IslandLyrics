@@ -13,3 +13,6 @@ dist/
 # 编辑器
 .vscode/
 .idea/
+
+# Release 资产（不入库，作为 GitHub Release 附件）
+IslandLyrics-*.zip
