@@ -80,6 +80,23 @@ public final class CDPPositionReader: @unchecked Sendable {
         return value == "ok"
     }
 
+    /// 读 AlgerMusic localStorage 的 `favoriteList`（红心歌曲 id 列表）→ Set<String>。CDP 不可用 → nil。
+    /// AlgerMusic 在用户喜欢/取消时更新此键，故周期读它即可反映手动改动（/api/status 不暴露红心态）。
+    public func readFavoriteIds(timeout: Double = 2.0) async -> Set<String>? {
+        let value = await withTimeout(timeout) { [weak self] () -> String? in
+            guard let self, let wsURL = await self.pageWebSocketURL() else { return nil }
+            return await self.evaluateRaw(wsURL: wsURL, expression: "localStorage.getItem('favoriteList')")
+        }
+        guard let value, value != "null" else { return nil }
+        // value 形如 "[496869422,236263,...]"；按 token 切、保留纯数字 id 串（避免大整数 Double 精度问题）。
+        let inner = value.trimmingCharacters(in: CharacterSet(charactersIn: "[]\n \t"))
+        guard !inner.isEmpty else { return [] }
+        let ids = inner.split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty && $0.allSatisfy(\.isNumber) }
+        return Set(ids)
+    }
+
     /// 连接 WS、Runtime.evaluate(expression, returnByValue)，返回结果 value 字符串。
     private func evaluateRaw(wsURL: URL, expression: String) async -> String? {
         let task = session.webSocketTask(with: wsURL)

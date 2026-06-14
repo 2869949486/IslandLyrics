@@ -11,7 +11,7 @@ final class PlayerStore: ObservableObject {
     @Published var userHidden = false   // 菜单栏「隐藏歌词岛」手动开关
     @Published private(set) var fallbackLyrics: [String: Lyric] = [:]   // id → 30488 兜底歌词
     @Published private(set) var algerInstalled = true   // 本机是否装了 AlgerMusic（false → 引导安装）
-    @Published private(set) var likedThisSession: Set<String> = []   // 本会话点过「喜欢」的歌 id（乐观显示红心；API 不暴露真实红心态）
+    @Published private(set) var likedIds: Set<String> = []   // 真实红心歌曲 id（CDP 读 AlgerMusic favoriteList，周期刷新）
     private var fetchingLyric: Set<String> = []
     private var debugLaunchAttempted = false   // 本会话是否已尝试过带调试参数(重)启（一次性，避免循环重启）
 
@@ -22,6 +22,7 @@ final class PlayerStore: ObservableObject {
     private var started = false
     private var statusTask: Task<Void, Never>?
     private var cdpTask: Task<Void, Never>?
+    private var favoriteTask: Task<Void, Never>?
     /// 刚提交的 seek 目标（秒）+ 墙钟。CDP 回采靠拢目标或窗口超时前，忽略回采避免读到 seek 生效前的旧值。
     private var pendingSeek: (target: Double, wall: Int64)?
     /// 刚乐观翻转的播放态 + 确认截止墙钟 + 当时歌曲身份。窗口内 status 未反映 toggle 时沿用乐观值，避免按钮闪回；
@@ -39,6 +40,7 @@ final class PlayerStore: ObservableObject {
         started = true
         statusTask = Task { await statusLoop() }
         cdpTask = Task { await cdpLoop() }
+        favoriteTask = Task { await favoriteLoop() }
         // 休眠唤醒后墙钟跳变会让插值外推一段；立即补一次 CDP 重锚把位置纠到真实处（不等下一轮 ~0.8s）。
         // 存 token 以便 stop() 移除，避免重复 start 累积观察者。
         wakeObserver = NSWorkspace.shared.notificationCenter.addObserver(
@@ -52,6 +54,7 @@ final class PlayerStore: ObservableObject {
     func stop() {
         statusTask?.cancel(); statusTask = nil
         cdpTask?.cancel(); cdpTask = nil
+        favoriteTask?.cancel(); favoriteTask = nil
         if let t = wakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(t); wakeObserver = nil }
         started = false
     }
@@ -225,14 +228,28 @@ final class PlayerStore: ObservableObject {
     func next() { pendingPlay = nil; Task { await client.control(.next) } }
     func prev() { pendingPlay = nil; Task { await client.control(.prev) } }
 
-    /// 当前歌是否被「喜欢」（乐观：仅反映本会话点击；AlgerMusic /api/status 不暴露真实红心态）。
-    var currentLiked: Bool { guard let id = activeSong?.id.value else { return false }; return likedThisSession.contains(id) }
+    /// 当前歌是否被「喜欢」（真实态：来自 CDP 读 AlgerMusic 的 favoriteList，反映在 AlgerMusic 里的手动改动）。
+    var currentLiked: Bool { guard let id = activeSong?.id.value else { return false }; return likedIds.contains(id) }
 
-    /// 喜欢/取消喜欢当前歌（等同网易云红心 = Apple Music 式喜欢）。POST /api/toggle-favorite + 乐观切换红心显示。
+    /// 喜欢/取消喜欢当前歌（等同网易云红心 = Apple Music 式喜欢）。乐观即时切 + POST + 短延后用真实 favoriteList 对账。
     func toggleFavorite() {
         guard let id = activeSong?.id.value, !id.isEmpty else { return }
-        if likedThisSession.contains(id) { likedThisSession.remove(id) } else { likedThisSession.insert(id) }
-        Task { await client.control(.toggleFavorite) }
+        if likedIds.contains(id) { likedIds.remove(id) } else { likedIds.insert(id) }   // 乐观即时反馈
+        Task {
+            await client.control(.toggleFavorite)
+            try? await Task.sleep(nanoseconds: 800_000_000)   // 等 AlgerMusic 更新 localStorage
+            if let ids = await cdp.readFavoriteIds() { likedIds = ids }
+        }
+    }
+
+    /// 周期读 AlgerMusic 的红心列表，反映用户在 AlgerMusic 里的手动喜欢/取消（CDP 不可用时不更新、退化为乐观态）。
+    private func favoriteLoop() async {
+        while !Task.isCancelled {
+            if AlgerMusicApp.isRunning, let ids = await cdp.readFavoriteIds(), ids != likedIds {
+                likedIds = ids
+            }
+            try? await Task.sleep(nanoseconds: 2_500_000_000)
+        }
     }
 
     /// 拖动进度：先本地立即重锚（UI 即时反映），再发 CDP seek 命令到 AlgerMusic。
