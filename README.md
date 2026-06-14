@@ -4,7 +4,7 @@
 
 # IslandLyrics · 灵动岛歌词
 
-**贴住 MacBook 刘海的超薄歌词灵动岛 —— 数据来自本机 [AlgerMusicPlayer](https://github.com/algerkong/AlgerMusicPlayer)**
+**专为 [AlgerMusic](https://github.com/algerkong/AlgerMusicPlayer) 打造的 MacBook 刘海灵动岛歌词 —— 播放、控制、歌词全部来自 AlgerMusic**
 
 收起态显示专辑+歌名/逐字高亮歌词+频谱；悬停展开成详情面板，可拖动进度、控制播放、看整页滚动歌词。
 
@@ -36,9 +36,23 @@
 - 🔤 **逐字 / 逐行高亮**：有逐字（yrc）走逐字渐进高亮，没有就行内线性插值；长歌词横向滚动跟随高亮。
 - 🎚️ **精准进度 + 可拖动 seek**：通过 CDP 读 Howler 真实播放位置，拖动进度条即时跳转（毫秒级，不是估算）。
 - 🎨 **跟封面主色的频谱** + **可自定义配色字号**：歌名/歌手/歌词/高亮四色、收起/展开各自字号、歌词时间偏移，全部可在设置里调（QQ 音乐式取色器）。
-- 🪶 **零侵入**：纯菜单栏后台 app（不进 Dock），只调 AlgerMusic 在本机暴露的 HTTP 接口，**不 fork、不改** AlgerMusic。
+- 🪶 **零侵入**：纯菜单栏后台 app（不进 Dock），只调 AlgerMusic 的 HTTP 接口，**不 fork、不改** AlgerMusic。
 - 🚀 **开箱即用**：没装 AlgerMusic 会引导你去下载；装了但没带调试参数启动，会**自动带参重启**启用精准进度。
 - 🛠️ **无需 Xcode**：纯 SwiftPM 构建 + 手工组 `.app` + ad-hoc 签名。
+
+---
+
+## 🎧 关于 AlgerMusic（本软件的搭档）
+
+IslandLyrics 是**专门为 [AlgerMusic](https://github.com/algerkong/AlgerMusicPlayer)（AlgerMusicPlayer）打造的歌词外设**——它自己不播放音乐，所有播放、控制、歌词都来自 AlgerMusic。所以使用前你需要先装好 AlgerMusic。
+
+而 **AlgerMusic 本身就是一款非常值得装的桌面音乐播放器** 👍：
+
+- 🎵 **全平台免费在线畅听**：聚合网易云 + 多平台音源解锁，绝大多数歌（包括下架、版权受限的）都能**免费在线听**，曲库极广，基本告别「灰色歌曲」。
+- 🔌 **支持自定义添加音源**：可自己添加 / 扩展音源，灵活强大，哪首听不了再补一个源就好。
+- 🖥️ **跨平台 + 开源 + 颜值在线**：Windows / macOS / Linux 全都有，界面好看、体验流畅。
+
+> 还没装？→ **[前往 AlgerMusic 下载](https://github.com/algerkong/AlgerMusicPlayer)**。装好后在它的「设置 → 应用设置 → 远程控制」里开启远程控制，IslandLyrics 就能取到数据了。
 
 ---
 
@@ -49,9 +63,9 @@
 | 芯片 | **仅 Apple Silicon（M 系列芯片，arm64 架构）**。⚠️ **不支持 Intel 芯片的 Mac** —— 预编译版是 arm64 单架构，Intel Mac 无法运行（且 Intel Mac 也没有刘海） |
 | 系统 | macOS 13 (Ventura) 及以上 |
 | 屏幕 | MacBook 内建刘海屏最佳（非刘海屏会退化成贴菜单栏的条）。多屏 MVP 仅用内建屏 |
-| 依赖 | 本机安装并运行 **[AlgerMusicPlayer](https://github.com/algerkong/AlgerMusicPlayer)**（网易云第三方客户端），且开启**远程控制** |
+| 依赖 | 安装并运行 **[AlgerMusic](https://github.com/algerkong/AlgerMusicPlayer)**，并在其「设置 → 应用设置 → 远程控制」中**开启远程控制** |
 
-> IslandLyrics 本身**不播放音乐**，它是 AlgerMusic 的「歌词显示外设」——播放/控制/歌词都来自 AlgerMusic 的本地接口。
+> IslandLyrics 本身**不播放音乐**，它是 AlgerMusic 的「歌词显示外设」——播放、控制、歌词都来自 AlgerMusic。
 
 ---
 
@@ -111,7 +125,7 @@ pkill -x IslandLyrics          # 停止
 
 ## 🧠 工作原理
 
-AlgerMusic 在本机暴露两个 localhost HTTP 口 + 一个可选的调试口，IslandLyrics 全靠它们：
+AlgerMusic 暴露两个 localhost HTTP 口 + 一个可选的调试口，IslandLyrics 全靠它们：
 
 | 来源 | 端口 | 用途 |
 |---|---|---|
